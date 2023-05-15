@@ -43,3 +43,5 @@ relief
 
 * german: https://gist.github.com/MarvinJWendt/2f4f4154b8ae218600eb091a5706b5f4
 * english: cat /usr/share/dict/* in MacOS Ventura
+* english-large: https://github.com/dwyl/english-words
+* profanity: https://www.cs.cmu.edu/~biglou/resources/

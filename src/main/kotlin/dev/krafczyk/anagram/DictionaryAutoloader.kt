@@ -36,9 +36,22 @@ class DictionaryAutoloader(private val dictionaryService: DictionaryService) {
     init {
         Executors.newCachedThreadPool().invokeAll(
             listOf(
-                loadDictionaryTask("german", "/wordlist-german.txt.xz"),
-                loadDictionaryTask("english", "/wordlist-english.txt.xz"),
-                loadDictionaryTask("combined", "/wordlist-german.txt.xz", "/wordlist-english.txt.xz"),
+                loadDictionaryTask(
+                    "german",
+                    "/wordlist-german.txt.xz",
+                    "/wordlist-profanity.txt.xz"
+                ),
+                loadDictionaryTask(
+                    "english",
+                    "/wordlist-english-large.txt.xz",
+                    "/wordlist-profanity.txt.xz"
+                ),
+                loadDictionaryTask(
+                    "combined",
+                    "/wordlist-german.txt.xz",
+                    "/wordlist-english-large.txt.xz",
+                    "/wordlist-profanity.txt.xz"
+                ),
             )
         ).forEach { it.get() }
     }

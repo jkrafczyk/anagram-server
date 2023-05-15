@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import java.io.IOException
+import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -16,6 +17,8 @@ class AnagramController(
     private val objectMapper: ObjectMapper
 ) {
     private val executorService: ExecutorService = Executors.newCachedThreadPool()
+
+    val responseTimeout = Duration.ofMinutes(10).toMillis()
 
     @GetMapping("/api/dictionaries")
     @ResponseBody
@@ -31,8 +34,9 @@ class AnagramController(
     ): ResponseBodyEmitter {
         val ang = AnagramFinder(dictionaryService[dictionary])
 
-        val emitter = ResponseBodyEmitter()
+        val emitter = ResponseBodyEmitter(responseTimeout)
         executorService.execute {
+            @Suppress("SwallowedException")
             try {
                 ang.buildAnagrams(input, prefix ?: "").forEach {
                     emitter.send(
@@ -40,7 +44,7 @@ class AnagramController(
                     )
                 }
             } catch (ex: IOException) {
-                emitter.completeWithError(ex)
+                // IGNORE
             } catch (ex: Exception) {
                 emitter.send("ERROR: ${ex.message}")
             } finally {
@@ -59,8 +63,9 @@ class AnagramController(
     ): ResponseBodyEmitter {
         val ang = AnagramFinder(dictionaryService[dictionary])
 
-        val emitter = ResponseBodyEmitter()
+        val emitter = ResponseBodyEmitter(responseTimeout)
         executorService.execute {
+            @Suppress("SwallowedException")
             try {
                 ang.suggestCompletions(input, prefix ?: "", partialWord ?: "").forEach {
                     emitter.send(
@@ -68,7 +73,7 @@ class AnagramController(
                     )
                 }
             } catch (ex: IOException) {
-                emitter.completeWithError(ex)
+                // IGNORE
             } catch (ex: Exception) {
                 emitter.send("ERROR: ${ex.message}")
             } finally {
@@ -86,10 +91,11 @@ class AnagramController(
     ): ResponseBodyEmitter {
         val ang = AnagramFinder(dictionaryService[dictionary])
         val seen = mutableSetOf<String>()
-        val emitter = ResponseBodyEmitter()
+        val emitter = ResponseBodyEmitter(responseTimeout)
         val unprefixStartOffset = (prefix ?: "").length
 
         executorService.execute {
+            @Suppress("SwallowedException")
             try {
                 ang.buildAnagrams(input, prefix ?: "").forEach {
                     val unprefixed = it.substring(unprefixStartOffset).trim()
@@ -102,7 +108,7 @@ class AnagramController(
                     }
                 }
             } catch (ex: IOException) {
-                emitter.completeWithError(ex)
+                // IGNORE
             } catch (ex: Exception) {
                 emitter.send("ERROR: ${ex.message}")
             } finally {
